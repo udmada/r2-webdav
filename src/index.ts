@@ -75,6 +75,15 @@ function fromR2Object(object: R2Object | null | undefined): DavProperties {
 	};
 }
 
+function escapeXml(str: string): string {
+	return str
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&apos;');
+}
+
 function make_resource_path(request: Request): string {
 	let path = new URL(request.url).pathname.slice(1);
 	path = path.endsWith('/') ? path.slice(0, -1) : path;
@@ -299,7 +308,7 @@ function generate_propfind_response(object: R2Object | null): string {
 			<prop>
 			${Object.entries(fromR2Object(null))
 				.filter(([_, value]) => value !== undefined)
-				.map(([key, value]) => `<${key}>${value}</${key}>`)
+				.map(([key, value]) => `<${key}>${escapeXml(String(value))}</${key}>`)
 				.join('\n				')}
 			</prop>
 			<status>HTTP/1.1 200 OK</status>
@@ -310,12 +319,12 @@ function generate_propfind_response(object: R2Object | null): string {
 	let href = `/${object.key + (object.customMetadata?.resourcetype === '<collection />' ? '/' : '')}`;
 	return `
 	<response>
-		<href>${href}</href>
+		<href>${escapeXml(href)}</href>
 		<propstat>
 			<prop>
 			${Object.entries(fromR2Object(object))
 			.filter(([_, value]) => value !== undefined)
-			.map(([key, value]) => `<${key}>${value}</${key}>`)
+			.map(([key, value]) => `<${key}>${escapeXml(String(value))}</${key}>`)
 			.join('\n				')}
 			</prop>
 			<status>HTTP/1.1 200 OK</status>
@@ -462,7 +471,7 @@ async function handle_proppatch(request: Request, bucket: R2Bucket): Promise<Res
 	for (const propName in setProperties) {
 		responseXML += `
     <response>
-        <href>/${object.key}</href>
+        <href>${escapeXml('/' + object.key)}</href>
         <propstat>
             <prop>
                 <${propName} />
@@ -475,7 +484,7 @@ async function handle_proppatch(request: Request, bucket: R2Bucket): Promise<Res
 	for (const propName of removeProperties) {
 		responseXML += `
     <response>
-        <href>/${object.key}</href>
+        <href>${escapeXml('/' + object.key)}</href>
         <propstat>
             <prop>
                 <${propName} />
