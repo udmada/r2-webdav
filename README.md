@@ -90,6 +90,12 @@ pnpm lint
 pnpm lint:fix
 ```
 
+Testing:
+```bash
+pnpm test         # Run tests in watch mode
+pnpm test:run     # Run tests once
+```
+
 For local development, you can also set environment variables in `.dev.vars`:
 ```
 USERNAME=your-username
@@ -158,11 +164,58 @@ The codebase uses Effect-TS for:
 
 ## Testing
 
-Use [litmus](https://github.com/notroj/litmus) to test WebDAV compliance:
+### Unit Tests
 
+The project uses Vitest 3.2.4 for unit testing with Cloudflare Workers integration. Tests are located alongside source files with `.test.ts` extension.
+
+Run unit tests:
 ```bash
-litmus http://your-worker.workers.dev/ username password
+pnpm test         # Watch mode
+pnpm test:run     # Single run (useful for CI)
 ```
+
+**Important:** Vitest and related packages are pinned to version 3.2.4 for compatibility with `@cloudflare/vitest-pool-workers`. Do not upgrade to Vitest 4.x as it has breaking changes that are incompatible with the Cloudflare Workers pool.
+
+Current test coverage includes:
+- **Path utilities** (`src/utils/path.test.ts`): Path normalization, directory traversal protection, null byte validation
+- **XML utilities** (`src/utils/xml.test.ts`): XML escaping, property parsing, CDATA/comment handling
+- **Batch utilities** (`src/utils/batch.test.ts`): Array chunking for R2 batch operations
+
+### WebDAV Compliance Testing with Litmus
+
+[Litmus](https://github.com/notroj/litmus) is a comprehensive WebDAV server test suite. To test full WebDAV protocol compliance:
+
+1. Install litmus:
+```bash
+# macOS
+brew install litmus
+
+# Ubuntu/Debian
+sudo apt-get install litmus
+
+# Build from source
+git clone https://github.com/notroj/litmus.git
+cd litmus
+./configure && make && sudo make install
+```
+
+2. Start your WebDAV server:
+```bash
+pnpm dev  # Local development server
+```
+
+3. Run litmus tests:
+```bash
+litmus http://localhost:8787/ username password
+```
+
+Expected test suites:
+- **basic**: OPTIONS, PUT, GET, HEAD, DELETE, MKCOL
+- **copymove**: COPY, MOVE operations
+- **props**: PROPFIND, PROPPATCH property handling
+- **locks**: LOCK, UNLOCK support (with caveats - in-memory only)
+
+Note: Some litmus tests may fail due to R2 storage constraints (e.g., atomic operations, lock persistence).
 
 ## License
 
