@@ -10,6 +10,7 @@ on {
             "pnpm-lock.yaml"
             "wrangler.toml"
             "tsconfig.json"
+            "mise.toml"
         }
     }
     pull_request {
@@ -19,6 +20,7 @@ on {
             "pnpm-lock.yaml"
             "wrangler.toml"
             "tsconfig.json"
+            "mise.toml"
         }
     }
 }

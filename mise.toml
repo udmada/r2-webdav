@@ -47,7 +47,7 @@ run = "pnpm typecheck"
 
 [tasks.deploy]
 description = "Deploy to Cloudflare Workers"
-run = "pnpm deploy"
+run = "pnpm run deploy"
 
 [tasks.check]
 description = "Run all checks (lint, format, typecheck, test)"
