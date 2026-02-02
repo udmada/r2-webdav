@@ -9,7 +9,7 @@ on {
 
 jobs {
     ["test"] {
-        `runs-on` = "ubuntu-latest"
+        `runs-on` = "ubuntu-slim"
         steps {
             new { uses = "actions/checkout@v4" }
             new { uses = "jdx/mise-action@v2" }
@@ -19,7 +19,7 @@ jobs {
             }
             new {
                 name = "Format check"
-                run = "mise run format:check"
+                run = "mise run format-check"
             }
             new {
                 name = "Lint"

@@ -7,13 +7,13 @@ hooks {
         steps {
             ["prettier"] {
                 glob = List("**/*.{ts,js,json,md,yml,yaml}")
-                check = "mise run format:check"
+                check = "mise run format-check"
                 fix = "mise run format"
             }
             ["eslint"] {
                 glob = List("src/**/*.ts")
                 check = "mise run lint"
-                fix = "mise run lint:fix"
+                fix = "mise run lint-fix"
             }
             ["typecheck"] {
                 glob = List("src/**/*.ts", "tsconfig.json")
