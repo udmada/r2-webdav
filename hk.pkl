@@ -21,7 +21,7 @@ hooks {
             }
             ["pkl-workflows"] {
                 glob = List(".github/pkl-workflows/*.pkl")
-                check = #"mise exec -- pkl eval .github/pkl-workflows/*.pkl -o ".github/workflows/%{moduleName}.yml" && git add .github/workflows/*.yml"#
+                check = #"mise exec -- pkl eval .github/pkl-workflows/*.pkl -o ".github/workflows/%{moduleName}.yml" && mise run format && git add .github/workflows/*.yml"#
                 exclusive = true
             }
         }
