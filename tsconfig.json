@@ -1,28 +1,28 @@
 {
   "compilerOptions": {
-    "target": "ES2024",
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "lib": ["ES2023"],
     "module": "ESNext",
-    "lib": ["ES2024"],
     "moduleResolution": "bundler",
-    "types": ["@cloudflare/workers-types"],
-    "strict": true,
+    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
+    "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "outDir": "./dist", // Add this
-    "rootDir": "./src", // Add this
-    "declaration": true, // Optional: generate .d.ts files
-    "declarationMap": true
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "strict": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "target": "ES2024",
+    "types": ["@cloudflare/workers-types"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
