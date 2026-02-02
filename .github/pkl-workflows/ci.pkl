@@ -3,9 +3,7 @@ amends "package://pkg.pkl-lang.org/pkl-pantry/com.github.actions@1.3.0#/Workflow
 name = "CI"
 
 on {
-    push {
-        branches { "main" }
-    }
+    push {}
     pull_request {}
 }
 
