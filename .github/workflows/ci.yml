@@ -11,8 +11,8 @@ jobs:
       - uses: jdx/mise-action@v2
       - name: Install dependencies
         run: mise run install
-      - name: Format check
-        run: mise run format-check
+      - name: Format check & fix
+        run: mise run format-check && mise run format
       - name: Lint
         run: mise run lint
       - name: Type check

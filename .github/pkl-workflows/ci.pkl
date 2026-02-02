@@ -18,8 +18,8 @@ jobs {
                 run = "mise run install"
             }
             new {
-                name = "Format check"
-                run = "mise run format-check"
+                name = "Format check & fix"
+                run = "mise run format-check && mise run format"
             }
             new {
                 name = "Lint"
