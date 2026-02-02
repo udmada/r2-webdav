@@ -12,11 +12,13 @@
 ### 1. Install Dependencies
 
 Using pnpm (recommended):
+
 ```bash
 pnpm install
 ```
 
 Or using npm:
+
 ```bash
 npm install
 ```
@@ -24,6 +26,7 @@ npm install
 ### 2. Configure R2 Bucket
 
 Edit `wrangler.toml`:
+
 ```toml
 [[r2_buckets]]
 binding = "BUCKET"
@@ -43,12 +46,14 @@ wrangler secret put PASSWORD
 ### 4. Local Development
 
 Create `.dev.vars` for local testing:
+
 ```bash
 echo "USERNAME=testuser" >> .dev.vars
 echo "PASSWORD=testpass" >> .dev.vars
 ```
 
 Start dev server:
+
 ```bash
 pnpm dev
 # or: npm run dev
@@ -138,21 +143,25 @@ litmus https://r2-webdav.your-subdomain.workers.dev/ username password
 ## Common Issues
 
 ### "Unauthorized" Error
+
 - Check USERNAME and PASSWORD secrets are set
 - Verify credentials in your client
 - Try resetting secrets: `wrangler secret put USERNAME`
 
 ### "Not Found" Error
+
 - Verify R2 bucket exists
 - Check bucket name in `wrangler.toml`
 - Ensure binding is "BUCKET" (uppercase)
 
 ### "Method Not Allowed" on MKCOL
+
 - Some clients send Content-Length > 0
 - This is expected behavior per RFC 4918
 - Should work with standard clients
 
 ### Connection Timeout
+
 - Check worker is deployed: `wrangler deployments list`
 - Verify worker URL is correct
 - Check Cloudflare dashboard for errors
@@ -174,11 +183,13 @@ litmus https://r2-webdav.your-subdomain.workers.dev/ username password
 ### Debug
 
 Check logs:
+
 ```bash
 wrangler tail
 ```
 
 Or in Cloudflare dashboard:
+
 - Workers & Pages → Your Worker → Logs
 
 ### Format Code
@@ -188,6 +199,7 @@ npm run format
 ```
 
 Check formatting:
+
 ```bash
 npm run format:check
 ```
@@ -195,6 +207,7 @@ npm run format:check
 ## Support
 
 For issues or questions:
+
 1. Check existing GitHub issues
 2. Review implementation notes
 3. Test with litmus for WebDAV compliance

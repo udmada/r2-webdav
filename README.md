@@ -47,12 +47,14 @@ src/
 ## Installation
 
 1. Install dependencies (pnpm recommended):
+
 ```bash
 pnpm install
 # or: npm install
 ```
 
 2. Configure environment variables in `wrangler.toml`:
+
 ```toml
 [[r2_buckets]]
 binding = "BUCKET"
@@ -60,12 +62,14 @@ bucket_name = "webdav"
 ```
 
 3. Set authentication credentials:
+
 ```bash
 wrangler secret put USERNAME
 wrangler secret put PASSWORD
 ```
 
 4. Deploy to Cloudflare Workers:
+
 ```bash
 pnpm deploy
 # or: npm run deploy
@@ -74,29 +78,34 @@ pnpm deploy
 ## Development
 
 Start local development server:
+
 ```bash
 pnpm dev
 # or: npm run dev
 ```
 
 Type checking:
+
 ```bash
 pnpm typecheck
 ```
 
 Linting:
+
 ```bash
 pnpm lint
 pnpm lint:fix
 ```
 
 Testing:
+
 ```bash
 pnpm test         # Run tests in watch mode
 pnpm test:run     # Run tests once
 ```
 
 For local development, you can also set environment variables in `.dev.vars`:
+
 ```
 USERNAME=your-username
 PASSWORD=your-password
@@ -105,6 +114,7 @@ PASSWORD=your-password
 ## Supported WebDAV Clients
 
 This implementation has been tested with:
+
 - macOS Finder (Connect to Server)
 - Windows Explorer (Map Network Drive)
 - Cyberduck
@@ -114,15 +124,19 @@ This implementation has been tested with:
 ## Security Features
 
 ### Path Traversal Protection
+
 The server implements segment-based path normalization to prevent directory traversal attacks:
+
 - Handles `..` and `.` segments correctly
 - Validates against null bytes (`\0`, `\x00`)
 - Normalizes all paths before processing
 
 ### Authentication
+
 Basic HTTP authentication with timing-safe string comparison to prevent timing attacks.
 
 ### CORS Configuration
+
 - Supports credentials for authenticated requests
 - Configurable allowed origins
 - Proper header exposure for WebDAV operations
@@ -130,19 +144,23 @@ Basic HTTP authentication with timing-safe string comparison to prevent timing a
 ## Implementation Details
 
 ### Effect-TS Integration
+
 The codebase uses Effect-TS for:
+
 - Type-safe error handling
 - Functional composition of async operations
 - Stream processing for large listings
 - Batched operations with controlled concurrency
 
 ### R2 API Handling
+
 - Proper handling of `R2Object` vs `R2ObjectBody` return types
 - 304 Not Modified responses for conditional requests
 - 412 Precondition Failed for unmet conditions
 - Batch delete operations limited to 1000 keys per R2 API constraints
 
 ### XML Processing
+
 - Escapes special characters (`&`, `<`, `>`, `"`, `'`)
 - Handles CDATA sections and comments
 - Namespace-aware property parsing
@@ -156,11 +174,11 @@ The codebase uses Effect-TS for:
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `USERNAME` | WebDAV authentication username | Yes |
-| `PASSWORD` | WebDAV authentication password | Yes |
-| `BUCKET` | R2 bucket binding name | Yes (configured in wrangler.toml) |
+| Variable   | Description                    | Required                          |
+| ---------- | ------------------------------ | --------------------------------- |
+| `USERNAME` | WebDAV authentication username | Yes                               |
+| `PASSWORD` | WebDAV authentication password | Yes                               |
+| `BUCKET`   | R2 bucket binding name         | Yes (configured in wrangler.toml) |
 
 ## Testing
 
@@ -169,6 +187,7 @@ The codebase uses Effect-TS for:
 The project uses Vitest 3.2.4 for unit testing with Cloudflare Workers integration. Tests are located alongside source files with `.test.ts` extension.
 
 Run unit tests:
+
 ```bash
 pnpm test         # Watch mode
 pnpm test:run     # Single run (useful for CI)
@@ -177,6 +196,7 @@ pnpm test:run     # Single run (useful for CI)
 **Important:** Vitest and related packages are pinned to version 3.2.4 for compatibility with `@cloudflare/vitest-pool-workers`. Do not upgrade to Vitest 4.x as it has breaking changes that are incompatible with the Cloudflare Workers pool.
 
 Current test coverage includes:
+
 - **Path utilities** (`src/utils/path.test.ts`): Path normalization, directory traversal protection, null byte validation
 - **XML utilities** (`src/utils/xml.test.ts`): XML escaping, property parsing, CDATA/comment handling
 - **Batch utilities** (`src/utils/batch.test.ts`): Array chunking for R2 batch operations
@@ -186,6 +206,7 @@ Current test coverage includes:
 [Litmus](https://github.com/notroj/litmus) is a comprehensive WebDAV server test suite. To test full WebDAV protocol compliance:
 
 1. Install litmus:
+
 ```bash
 # macOS
 brew install litmus
@@ -200,16 +221,19 @@ cd litmus
 ```
 
 2. Start your WebDAV server:
+
 ```bash
 pnpm dev  # Local development server
 ```
 
 3. Run litmus tests:
+
 ```bash
 litmus http://localhost:8787/ username password
 ```
 
 Expected test suites:
+
 - **basic**: OPTIONS, PUT, GET, HEAD, DELETE, MKCOL
 - **copymove**: COPY, MOVE operations
 - **props**: PROPFIND, PROPPATCH property handling

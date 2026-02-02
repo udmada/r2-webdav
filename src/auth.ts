@@ -1,19 +1,19 @@
-import { Effect } from 'effect'
+import { Effect } from "effect";
 
 export const isAuthorized = (
-	authHeader: string | null,
-	username: string,
-	password: string
+  authHeader: string | null,
+  username: string,
+  password: string
 ): Effect.Effect<boolean> =>
-	Effect.sync(() => {
-		if (authHeader === null) return false
+  Effect.sync(() => {
+    if (authHeader === null) return false;
 
-		const encoder = new TextEncoder()
-		const header = encoder.encode(authHeader)
-		const expected = encoder.encode(`Basic ${btoa(`${username}:${password}`)}`)
+    const encoder = new TextEncoder();
+    const header = encoder.encode(authHeader);
+    const expected = encoder.encode(`Basic ${btoa(`${username}:${password}`)}`);
 
-		return (
-			header.byteLength === expected.byteLength &&
-			crypto.subtle.timingSafeEqual(header, expected)
-		)
-	})
+    return (
+      header.byteLength === expected.byteLength &&
+      crypto.subtle.timingSafeEqual(header, expected)
+    );
+  });

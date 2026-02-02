@@ -35,13 +35,13 @@ This is a production-ready WebDAV server implementation for Cloudflare Workers +
 ```typescript
 // Basic effect
 Effect.sync(() => {
-	/* sync code */
+  /* sync code */
 });
 
 // Async effect
 Effect.tryPromise({
-	try: () => asyncOperation(),
-	catch: (error) => new Error(String(error)),
+  try: () => asyncOperation(),
+  catch: (error) => new Error(String(error)),
 });
 
 // Stream processing
@@ -91,11 +91,11 @@ const segments = path.split("/").filter(Boolean);
 const normalized: string[] = [];
 
 for (const segment of segments) {
-	if (segment === "..") {
-		normalized.pop();
-	} else if (segment !== ".") {
-		normalized.push(segment);
-	}
+  if (segment === "..") {
+    normalized.pop();
+  } else if (segment !== ".") {
+    normalized.push(segment);
+  }
 }
 ```
 
@@ -122,12 +122,12 @@ crypto.subtle.timingSafeEqual(header, expected);
 
 ```typescript
 export const escapeXml = (str: string): string =>
-	str
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;")
-		.replace(/'/g, "&apos;");
+  str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 ```
 
 **Critical for:**
@@ -150,21 +150,21 @@ R2's `get()` method can return:
 
 ```typescript
 export const isR2ObjectBody = (
-	obj: R2Object | R2ObjectBody | null
+  obj: R2Object | R2ObjectBody | null
 ): obj is R2ObjectBody => obj !== null && "body" in obj;
 
 // Usage
 if (object === null) {
-	return new Response("Not Found", { status: 404 });
+  return new Response("Not Found", { status: 404 });
 }
 
 if (!isR2ObjectBody(object)) {
-	// Handle 304 or 412
-	const ifNoneMatch = request.headers.get("If-None-Match");
-	if (ifNoneMatch && ifNoneMatch === object.etag) {
-		return new Response(null, { status: 304, headers: { ETag: object.etag } });
-	}
-	return new Response("Precondition Failed", { status: 412 });
+  // Handle 304 or 412
+  const ifNoneMatch = request.headers.get("If-None-Match");
+  if (ifNoneMatch && ifNoneMatch === object.etag) {
+    return new Response(null, { status: 304, headers: { ETag: object.etag } });
+  }
+  return new Response("Precondition Failed", { status: 412 });
 }
 
 // Now we have R2ObjectBody with body stream
@@ -181,17 +181,17 @@ const R2_DELETE_BATCH_SIZE = 1000;
 const batches = chunkArray(keyArray, R2_DELETE_BATCH_SIZE);
 
 yield *
-	Effect.all(
-		batches.map((batch) =>
-			Effect.tryPromise({
-				try: async () => {
-					await bucket.delete(batch);
-				},
-				catch: (error) => new Error(`Failed to delete: ${String(error)}`),
-			})
-		),
-		{ concurrency: 5 }
-	);
+  Effect.all(
+    batches.map((batch) =>
+      Effect.tryPromise({
+        try: async () => {
+          await bucket.delete(batch);
+        },
+        catch: (error) => new Error(`Failed to delete: ${String(error)}`),
+      })
+    ),
+    { concurrency: 5 }
+  );
 ```
 
 **Benefits:**
@@ -212,12 +212,12 @@ yield *
 
 ```typescript
 Stream.runForEach(listAll(bucket, prefix, false), (object) =>
-	Effect.sync(() => {
-		if (count >= MAX_LISTING_ITEMS) {
-			throw new Error("Directory listing limit exceeded");
-		}
-		// Process object
-	})
+  Effect.sync(() => {
+    if (count >= MAX_LISTING_ITEMS) {
+      throw new Error("Directory listing limit exceeded");
+    }
+    // Process object
+  })
 );
 ```
 

@@ -1,149 +1,155 @@
-import { Effect, Stream } from 'effect'
-import type { R2Bucket } from '@cloudflare/workers-types'
+import { Effect, Stream } from "effect";
+import type { R2Bucket } from "@cloudflare/workers-types";
 import {
-	headObject,
-	getObject,
-	putObject,
-	deleteObject,
-	isR2ObjectBody,
-	listAll,
-} from '../r2/operations'
-import { makeResourcePath } from '../utils/path'
+  headObject,
+  getObject,
+  putObject,
+  deleteObject,
+  isR2ObjectBody,
+  listAll,
+} from "../r2/operations";
+import { makeResourcePath } from "../utils/path";
 
 export const handleMove = (
-	request: Request,
-	bucket: R2Bucket
+  request: Request,
+  bucket: R2Bucket
 ): Effect.Effect<Response, Error> =>
-	Effect.gen(function* () {
-		const resourcePath = makeResourcePath(request)
-		const overwrite = request.headers.get('Overwrite') === 'T'
-		const destinationHeader = request.headers.get('Destination')
+  Effect.gen(function* () {
+    const resourcePath = makeResourcePath(request);
+    const overwrite = request.headers.get("Overwrite") === "T";
+    const destinationHeader = request.headers.get("Destination");
 
-		if (destinationHeader === null) {
-			return new Response('Bad Request', { status: 400 })
-		}
+    if (destinationHeader === null) {
+      return new Response("Bad Request", { status: 400 });
+    }
 
-		let destination = new URL(destinationHeader).pathname.slice(1)
-		destination = destination.endsWith('/') ? destination.slice(0, -1) : destination
+    let destination = new URL(destinationHeader).pathname.slice(1);
+    destination =
+      destination.endsWith("/") ? destination.slice(0, -1) : destination;
 
-		// Check if the parent directory exists
-		const destinationParent = destination
-			.split('/')
-			.slice(0, destination.endsWith('/') ? -2 : -1)
-			.join('/')
+    // Check if the parent directory exists
+    const destinationParent = destination
+      .split("/")
+      .slice(0, destination.endsWith("/") ? -2 : -1)
+      .join("/");
 
-		if (destinationParent !== '') {
-			const parent = yield* headObject(bucket, destinationParent)
-			if (!parent) {
-				return new Response('Conflict', { status: 409 })
-			}
-		}
+    if (destinationParent !== "") {
+      const parent = yield* headObject(bucket, destinationParent);
+      if (!parent) {
+        return new Response("Conflict", { status: 409 });
+      }
+    }
 
-		// Check if the destination already exists
-		const destinationExists = yield* headObject(bucket, destination)
-		if (!overwrite && destinationExists) {
-			return new Response('Precondition Failed', { status: 412 })
-		}
+    // Check if the destination already exists
+    const destinationExists = yield* headObject(bucket, destination);
+    if (!overwrite && destinationExists) {
+      return new Response("Precondition Failed", { status: 412 });
+    }
 
-		const resource = yield* headObject(bucket, resourcePath)
-		if (resource === null) {
-			return new Response('Not Found', { status: 404 })
-		}
-		if (resource.key === destination) {
-			return new Response('Bad Request', { status: 400 })
-		}
+    const resource = yield* headObject(bucket, resourcePath);
+    if (resource === null) {
+      return new Response("Not Found", { status: 404 });
+    }
+    if (resource.key === destination) {
+      return new Response("Bad Request", { status: 400 });
+    }
 
-		// Delete destination if it exists and overwrite is allowed
-		if (destinationExists) {
-			const destResource = yield* headObject(bucket, destination)
-			yield* deleteObject(bucket, destination)
+    // Delete destination if it exists and overwrite is allowed
+    if (destinationExists) {
+      const destResource = yield* headObject(bucket, destination);
+      yield* deleteObject(bucket, destination);
 
-			if (destResource?.customMetadata?.resourcetype === '<collection />') {
-				const keys = yield* Stream.runCollect(
-					Stream.map(
-						listAll(bucket, `${destination}/`, true),
-						(object) => object.key
-					)
-				)
-				const keyArray = Array.from(keys)
-				if (keyArray.length > 0) {
-					yield* deleteObject(bucket, keyArray)
-				}
-			}
-		}
+      if (destResource?.customMetadata?.resourcetype === "<collection />") {
+        const keys = yield* Stream.runCollect(
+          Stream.map(
+            listAll(bucket, `${destination}/`, true),
+            (object) => object.key
+          )
+        );
+        const keyArray = Array.from(keys);
+        if (keyArray.length > 0) {
+          yield* deleteObject(bucket, keyArray);
+        }
+      }
+    }
 
-		const isDir = resource.customMetadata?.resourcetype === '<collection />'
+    const isDir = resource.customMetadata?.resourcetype === "<collection />";
 
-		if (isDir) {
-			const depth = request.headers.get('Depth') ?? 'infinity'
+    if (isDir) {
+      const depth = request.headers.get("Depth") ?? "infinity";
 
-			switch (depth) {
-				case 'infinity': {
-					const prefix = `${resourcePath}/`
+      switch (depth) {
+        case "infinity": {
+          const prefix = `${resourcePath}/`;
 
-					// Move root collection
-					const rootSrc = yield* getObject(bucket, resource.key)
-					if (rootSrc !== null && isR2ObjectBody(rootSrc)) {
-						yield* putObject(bucket, destination, rootSrc.body, {
-							httpMetadata: resource.httpMetadata,
-							customMetadata: resource.customMetadata,
-						})
-					}
+          // Move root collection
+          const rootSrc = yield* getObject(bucket, resource.key);
+          if (rootSrc !== null && isR2ObjectBody(rootSrc)) {
+            yield* putObject(bucket, destination, rootSrc.body, {
+              httpMetadata: resource.httpMetadata,
+              customMetadata: resource.customMetadata,
+            });
+          }
 
-					// Collect all children keys first
-					const children = yield* Stream.runCollect(listAll(bucket, prefix, true))
-					const childrenArray = Array.from(children)
+          // Collect all children keys first
+          const children = yield* Stream.runCollect(
+            listAll(bucket, prefix, true)
+          );
+          const childrenArray = Array.from(children);
 
-					// Move all children
-					for (const object of childrenArray) {
-						let target = `${destination}/${object.key.slice(prefix.length)}`
-						target = target.endsWith('/') ? target.slice(0, -1) : target
-						const src = yield* getObject(bucket, object.key)
-						if (src !== null && isR2ObjectBody(src)) {
-							yield* putObject(bucket, target, src.body, {
-								httpMetadata: object.httpMetadata,
-								customMetadata: object.customMetadata,
-							})
-						}
-					}
+          // Move all children
+          for (const object of childrenArray) {
+            let target = `${destination}/${object.key.slice(prefix.length)}`;
+            target = target.endsWith("/") ? target.slice(0, -1) : target;
+            const src = yield* getObject(bucket, object.key);
+            if (src !== null && isR2ObjectBody(src)) {
+              yield* putObject(bucket, target, src.body, {
+                httpMetadata: object.httpMetadata,
+                customMetadata: object.customMetadata,
+              });
+            }
+          }
 
-					// Delete source and all children
-					const keysToDelete = [resource.key, ...childrenArray.map((obj) => obj.key)]
-					yield* deleteObject(bucket, keysToDelete)
+          // Delete source and all children
+          const keysToDelete = [
+            resource.key,
+            ...childrenArray.map((obj) => obj.key),
+          ];
+          yield* deleteObject(bucket, keysToDelete);
 
-					return new Response(destinationExists ? null : '', {
-						status: destinationExists ? 204 : 201,
-					})
-				}
-				case '0': {
-					const object = yield* getObject(bucket, resource.key)
-					if (object === null || !isR2ObjectBody(object)) {
-						return new Response('Not Found', { status: 404 })
-					}
-					yield* putObject(bucket, destination, object.body, {
-						httpMetadata: object.httpMetadata,
-						customMetadata: object.customMetadata,
-					})
-					yield* deleteObject(bucket, resource.key)
-					return new Response(destinationExists ? null : '', {
-						status: destinationExists ? 204 : 201,
-					})
-				}
-				default:
-					return new Response('Bad Request', { status: 400 })
-			}
-		} else {
-			const src = yield* getObject(bucket, resource.key)
-			if (src === null || !isR2ObjectBody(src)) {
-				return new Response('Not Found', { status: 404 })
-			}
-			yield* putObject(bucket, destination, src.body, {
-				httpMetadata: src.httpMetadata,
-				customMetadata: src.customMetadata,
-			})
-			yield* deleteObject(bucket, resource.key)
-			return new Response(destinationExists ? null : '', {
-				status: destinationExists ? 204 : 201,
-			})
-		}
-	})
+          return new Response(destinationExists ? null : "", {
+            status: destinationExists ? 204 : 201,
+          });
+        }
+        case "0": {
+          const object = yield* getObject(bucket, resource.key);
+          if (object === null || !isR2ObjectBody(object)) {
+            return new Response("Not Found", { status: 404 });
+          }
+          yield* putObject(bucket, destination, object.body, {
+            httpMetadata: object.httpMetadata,
+            customMetadata: object.customMetadata,
+          });
+          yield* deleteObject(bucket, resource.key);
+          return new Response(destinationExists ? null : "", {
+            status: destinationExists ? 204 : 201,
+          });
+        }
+        default:
+          return new Response("Bad Request", { status: 400 });
+      }
+    } else {
+      const src = yield* getObject(bucket, resource.key);
+      if (src === null || !isR2ObjectBody(src)) {
+        return new Response("Not Found", { status: 404 });
+      }
+      yield* putObject(bucket, destination, src.body, {
+        httpMetadata: src.httpMetadata,
+        customMetadata: src.customMetadata,
+      });
+      yield* deleteObject(bucket, resource.key);
+      return new Response(destinationExists ? null : "", {
+        status: destinationExists ? 204 : 201,
+      });
+    }
+  });

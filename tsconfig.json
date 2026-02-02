@@ -1,5 +1,5 @@
 {
-"compilerOptions": {
+  "compilerOptions": {
     "target": "ES2024",
     "module": "ESNext",
     "lib": ["ES2024"],
@@ -19,11 +19,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "outDir": "./dist",           // Add this
-    "rootDir": "./src",            // Add this
-    "declaration": true,           // Optional: generate .d.ts files
-    "declarationMap": true,   
+    "outDir": "./dist", // Add this
+    "rootDir": "./src", // Add this
+    "declaration": true, // Optional: generate .d.ts files
+    "declarationMap": true
   },
-   "include": ["src/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }

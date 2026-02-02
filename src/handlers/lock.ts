@@ -1,14 +1,15 @@
-import { Effect } from 'effect'
-import { escapeXml } from '../utils/xml'
+import { Effect } from "effect";
+import { escapeXml } from "../utils/xml";
 
-const generateLockToken = (): string => `opaquelocktoken:${crypto.randomUUID()}`
+const generateLockToken = (): string =>
+  `opaquelocktoken:${crypto.randomUUID()}`;
 
 export const handleLock = (request: Request): Effect.Effect<Response> =>
-	Effect.sync(() => {
-		const lockToken = generateLockToken()
-		const path = new URL(request.url).pathname
+  Effect.sync(() => {
+    const lockToken = generateLockToken();
+    const path = new URL(request.url).pathname;
 
-		const lockResponse = `<?xml version="1.0" encoding="utf-8"?>
+    const lockResponse = `<?xml version="1.0" encoding="utf-8"?>
 <D:prop xmlns:D="DAV:">
   <D:lockdiscovery>
     <D:activelock>
@@ -27,16 +28,16 @@ export const handleLock = (request: Request): Effect.Effect<Response> =>
       </D:lockroot>
     </D:activelock>
   </D:lockdiscovery>
-</D:prop>`
+</D:prop>`;
 
-		return new Response(lockResponse, {
-			status: 200,
-			headers: {
-				'Content-Type': 'application/xml; charset="utf-8',
-				'Lock-Token': `<${lockToken}>`,
-			},
-		})
-	})
+    return new Response(lockResponse, {
+      status: 200,
+      headers: {
+        "Content-Type": 'application/xml; charset="utf-8',
+        "Lock-Token": `<${lockToken}>`,
+      },
+    });
+  });
 
 export const handleUnlock = (): Effect.Effect<Response> =>
-	Effect.succeed(new Response(null, { status: 204 }))
+  Effect.succeed(new Response(null, { status: 204 }));

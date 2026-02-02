@@ -14,22 +14,22 @@ import { Effect } from "effect";
 
 type SupportedMethod = (typeof SUPPORT_METHODS)[number] | "LOCK" | "UNLOCK";
 type Handler = (
-	request: Request,
-	bucket: R2Bucket
+  request: Request,
+  bucket: R2Bucket
 ) => Effect.Effect<Response, Error>;
 
 // Handler map with exhaustive type checking
 export const handlers: Record<SupportedMethod, Handler> = {
-	OPTIONS: () => handleOptions(),
-	HEAD: (req, bucket) => handleHead(req, bucket),
-	GET: (req, bucket) => handleGet(req, bucket),
-	PUT: (req, bucket) => handlePut(req, bucket),
-	DELETE: (req, bucket) => handleDelete(req, bucket),
-	MKCOL: (req, bucket) => handleMkcol(req, bucket),
-	PROPFIND: (req, bucket) => handlePropfind(req, bucket),
-	PROPPATCH: (req, bucket) => handleProppatch(req, bucket),
-	COPY: (req, bucket) => handleCopy(req, bucket),
-	MOVE: (req, bucket) => handleMove(req, bucket),
-	LOCK: (req) => handleLock(req),
-	UNLOCK: () => handleUnlock(),
+  OPTIONS: () => handleOptions(),
+  HEAD: (req, bucket) => handleHead(req, bucket),
+  GET: (req, bucket) => handleGet(req, bucket),
+  PUT: (req, bucket) => handlePut(req, bucket),
+  DELETE: (req, bucket) => handleDelete(req, bucket),
+  MKCOL: (req, bucket) => handleMkcol(req, bucket),
+  PROPFIND: (req, bucket) => handlePropfind(req, bucket),
+  PROPPATCH: (req, bucket) => handleProppatch(req, bucket),
+  COPY: (req, bucket) => handleCopy(req, bucket),
+  MOVE: (req, bucket) => handleMove(req, bucket),
+  LOCK: (req) => handleLock(req),
+  UNLOCK: () => handleUnlock(),
 };

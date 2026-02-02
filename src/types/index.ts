@@ -12,15 +12,15 @@ export interface WebDAVContext {
 }
 
 export const SUPPORT_METHODS = [
-  'OPTIONS',
-  'PROPFIND',
-  'GET',
-  'HEAD',
-  'PUT',
-  'DELETE',
-  'MKCOL',
-  'MOVE',
-  'COPY'
+  "OPTIONS",
+  "PROPFIND",
+  "GET",
+  "HEAD",
+  "PUT",
+  "DELETE",
+  "MKCOL",
+  "MOVE",
+  "COPY",
 ] as const;
 
-export const DAV_CLASS = '1, 2, 3, extended-mkcol';
+export const DAV_CLASS = "1, 2, 3, extended-mkcol";
