@@ -1,6 +1,6 @@
 compatibility_date = "2026-01-20"
-main = "src/index.ts"
 name = "r2-webdav"
+main = "./dist/index.js"
 
 compatibility_flags = ["nodejs_compat"]
 
@@ -11,6 +11,22 @@ binding = "BUCKET"     # <~ valid JavaScript variable name
 bucket_name = "webdav"
 
 # Docs: https://developers.cloudflare.com/workers/observability/logs/workers-logs/#enable-workers-logs
+
 [observability]
 enabled = true
 head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
+persist = true
+head_sampling_rate = 1
+
+[build]
+command = "pnpm exec tsc"
+watch_dir = "src"
