@@ -1,0 +1,23 @@
+# Generated from Workflow.pkl. DO NOT EDIT.
+name: CI
+"on":
+  pull_request: {}
+  push:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+      - name: Install dependencies
+        run: mise run install
+      - name: Format check
+        run: mise run format:check
+      - name: Lint
+        run: mise run lint
+      - name: Type check
+        run: mise run typecheck
+      - name: Run tests
+        run: mise run test

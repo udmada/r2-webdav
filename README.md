@@ -104,6 +104,36 @@ pnpm test         # Run tests in watch mode
 pnpm test:run     # Run tests once
 ```
 
+### Git Hooks (hk)
+
+This project uses [hk](https://github.com/jdx/hk) for git hooks managed via pkl configuration:
+
+```bash
+# Install hk (if not already installed)
+mise install hk
+
+# Initialize hooks
+hk init
+
+# The following hooks are configured:
+# - pre-commit: Runs format, lint, typecheck, and regenerates workflows from pkl
+# - pre-push: Runs tests
+```
+
+### GitHub Actions Workflows
+
+Workflows are defined using [pkl](https://pkl-lang.org/) in `.github/pkl-workflows/` and automatically generated to YAML:
+
+```bash
+# Regenerate workflow YAML files from pkl (done automatically by pre-commit hook)
+pkl eval .github/pkl-workflows/*.pkl -o ".github/workflows/%{moduleName}.yml"
+```
+
+**Workflows:**
+
+- `ci.yml` - Runs tests, linting, type checking on all PRs and pushes
+- `deploy-cloudflare.yml` - Deploys to Cloudflare Workers on pushes to main
+
 For local development, you can also set environment variables in `.dev.vars`:
 
 ```
