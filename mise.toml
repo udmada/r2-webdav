@@ -1,7 +1,9 @@
 [tools]
+hk = "latest"
 node = "lts"
 pnpm = "latest"
 wrangler = "latest"
+pkl = "latest"
 
 [tasks.install]
 description = "Install dependencies"
