@@ -20,7 +20,7 @@ env:
   CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     environment:
       name: production
     steps:
