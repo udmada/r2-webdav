@@ -1,0 +1,54 @@
+[tools]
+hk = "latest"
+node = "lts"
+pnpm = "latest"
+wrangler = "latest"
+pkl = "latest"
+
+[tasks.install]
+description = "Install dependencies"
+run = "pnpm install"
+
+[tasks.dev]
+description = "Start development server"
+run = "pnpm dev"
+
+[tasks.build]
+description = "Type check and build the worker"
+run = "pnpm build"
+
+[tasks.test]
+description = "Run unit tests"
+run = "pnpm test:run"
+
+[tasks.test-watch]
+description = "Run tests in watch mode"
+run = "pnpm test"
+
+[tasks.lint]
+description = "Lint source code"
+run = "pnpm lint"
+
+[tasks.lint-fix]
+description = "Lint and auto-fix issues"
+run = "pnpm lint:fix"
+
+[tasks.format]
+description = "Format code with Prettier"
+run = "pnpm format"
+
+[tasks.format-check]
+description = "Check code formatting"
+run = "pnpm format:check"
+
+[tasks.typecheck]
+description = "Type check TypeScript"
+run = "pnpm typecheck"
+
+[tasks.deploy]
+description = "Deploy to Cloudflare Workers"
+run = "pnpm run deploy"
+
+[tasks.check]
+description = "Run all checks (lint, format, typecheck, test)"
+run = ["pnpm format:check", "pnpm lint", "pnpm typecheck", "pnpm test:run"]

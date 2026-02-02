@@ -1,16 +1,28 @@
-compatibility_date = "2023-10-16"
-main = "src/index.ts"
+compatibility_date = "2026-01-20"
 name = "r2-webdav"
+main = "./dist/index.js"
 
 compatibility_flags = ["nodejs_compat"]
 
-# Bind an R2 Bucket. Use R2 to store arbitrarily large blobs of data, such as files.
-# Docs: https://developers.cloudflare.com/r2/api/workers/workers-api-usage/
 [[r2_buckets]]
-binding = "bucket" # <~ valid JavaScript variable name
+binding = "BUCKET"
 bucket_name = "webdav"
 
-# Docs: https://developers.cloudflare.com/workers/observability/logs/workers-logs/#enable-workers-logs
 [observability]
 enabled = true
 head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
+persist = true
+head_sampling_rate = 1
+
+[build]
+command = "pnpm exec tsc"
+watch_dir = "src"
